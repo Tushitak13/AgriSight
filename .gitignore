@@ -1,0 +1,30 @@
+﻿# Python environments
+venv/
+.venv/
+env/
+
+# Python cache and test artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Secrets and environment configuration
+.env
+.env.*
+!.env.example
+
+# Databases and backups
+*.db
+*.sqlite
+*.sqlite3
+*.db-*
+
+# Logs
+*.log
+
+# Generated benchmark artifacts
+
+# Raw images - exclude until reviewed
+/data/raw/
