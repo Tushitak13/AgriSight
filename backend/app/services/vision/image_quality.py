@@ -37,9 +37,14 @@ def assess_image_quality(img: Image.Image) -> dict:
 
     brightness = float(luma.mean())
     contrast = float(luma.std())
-    lap = (-4 * luma[1:-1, 1:-1] + luma[:-2, 1:-1] + luma[2:, 1:-1]
-           + luma[1:-1, :-2] + luma[1:-1, 2:])
-    blur_var = float(lap.var())
+    if luma.shape[0] < 3 or luma.shape[1] < 3:
+        # No interior pixels are available for the Laplacian blur estimate.
+        # Treat undersized images as having zero blur quality.
+        blur_var = 0.0
+    else:
+        lap = (-4 * luma[1:-1, 1:-1] + luma[:-2, 1:-1] + luma[2:, 1:-1]
+               + luma[1:-1, :-2] + luma[1:-1, 2:])
+        blur_var = float(lap.var())
     clip = float(((luma <= 5) | (luma >= 250)).mean())
     occlusion = blocked_fraction(luma)
     coverage = float(((2 * g - r - b) > 20).mean())   # Excess-Green vegetation proxy

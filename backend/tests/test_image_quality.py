@@ -49,3 +49,34 @@ def test_confident_prediction_on_bad_image_is_discounted(imgs):
 
 def test_no_confidence_gives_none(imgs):
     assert compute_vision_reliability(q(imgs, "healthy"), None)["effective_confidence"] is None
+
+
+def test_quality_scores_stay_within_zero_and_one(imgs):
+    for name in imgs:
+        result = q(imgs, name)
+        assert 0.0 <= result["overall"] <= 1.0
+        assert all(0.0 <= score <= 1.0 for score in result["scores"].values())
+
+
+def test_grayscale_image_is_supported():
+    from PIL import Image
+
+    img = Image.new("L", (64, 64), color=128)
+    result = assess_image_quality(img)
+
+    assert result["metrics"]["width"] == 64
+    assert result["metrics"]["height"] == 64
+    assert 0.0 <= result["overall"] <= 1.0
+    assert all(0.0 <= score <= 1.0 for score in result["scores"].values())
+
+
+def test_tiny_image_has_finite_quality_values():
+    import math
+    from PIL import Image
+
+    img = Image.new("RGB", (2, 2), color=(80, 120, 60))
+    result = assess_image_quality(img)
+
+    assert math.isfinite(result["metrics"]["blur_variance"])
+    assert math.isfinite(result["overall"])
+    assert all(math.isfinite(score) for score in result["scores"].values())
