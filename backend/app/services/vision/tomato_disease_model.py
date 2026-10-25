@@ -21,6 +21,7 @@ MODEL_REVISION = "v1.0"
 def _read_confidence_threshold() -> float:
     """Read a provisional threshold, validating that it is between 0 and 1."""
     raw = os.getenv("AGRISIGHT_TOMATO_MIN_CONFIDENCE", "0.60")
+
     try:
         value = float(raw)
     except ValueError as exc:
@@ -32,6 +33,7 @@ def _read_confidence_threshold() -> float:
         raise ValueError(
             "AGRISIGHT_TOMATO_MIN_CONFIDENCE must be between 0 and 1"
         )
+
     return value
 
 
@@ -41,7 +43,7 @@ MIN_CONFIDENCE = _read_confidence_threshold()
 
 @lru_cache(maxsize=1)
 def _load_model():
-    """Load the model once per process."""
+    """Load the model and image processor once per process."""
     processor = AutoImageProcessor.from_pretrained(
         MODEL_ID, revision=MODEL_REVISION
     )
@@ -50,6 +52,7 @@ def _load_model():
     )
     model.to("cpu")
     model.eval()
+
     return processor, model
 
 
@@ -59,6 +62,12 @@ class TomatoDiseaseModel:
     name = f"mobilenetv2_plantvillage_{MODEL_REVISION}"
 
     def predict(self, img: Image.Image) -> dict:
+        """Predict plant disease labels and return uncalibrated softmax scores.
+
+        `confidence` is the top overall class's raw softmax score.
+        `probabilities` maps all model labels to their raw softmax scores.
+        Neither represents a calibrated probability of correctness.
+        """
         start = time.perf_counter()
         model_version = f"{MODEL_ID}@{MODEL_REVISION}"
 
@@ -85,13 +94,16 @@ class TomatoDiseaseModel:
                 for label, score in probabilities.items()
                 if label.startswith("Tomato___")
             }
+
             best_tomato_class = (
                 max(tomato_scores, key=tomato_scores.get)
-                if tomato_scores else None
+                if tomato_scores
+                else None
             )
             best_tomato_score = (
                 tomato_scores[best_tomato_class]
-                if best_tomato_class is not None else None
+                if best_tomato_class is not None
+                else None
             )
 
             top_predictions = [
@@ -109,12 +121,14 @@ class TomatoDiseaseModel:
                 predicted_class = None
                 visual_state = "uncertain_crop"
                 prediction = "unknown"
+
             elif confidence < MIN_CONFIDENCE:
                 status = "uncertain"
                 reason = "low_confidence"
                 predicted_class = None
                 visual_state = "uncertain_disease"
                 prediction = "unknown"
+
             else:
                 status = "success"
                 reason = None
@@ -135,18 +149,20 @@ class TomatoDiseaseModel:
                 "best_tomato_class": best_tomato_class,
                 "best_tomato_score": best_tomato_score,
                 "top_predictions": top_predictions,
+
+                # Public inference contract fields.
                 "status": status,
                 "model_version": model_version,
                 "inference_time_ms": round(
                     (time.perf_counter() - start) * 1000, 2
                 ),
-                # New contract fields.
                 "probabilities": probabilities,
                 "reason": reason,
             }
 
         except Exception:
             logger.exception("Tomato disease inference failed")
+
             return {
                 "visual_state": "inference_error",
                 "prediction": "unknown",
