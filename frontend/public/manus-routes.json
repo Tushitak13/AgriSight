@@ -1,0 +1,13 @@
+{
+  "routes": [
+    { "path": "/", "title": "Dashboard" },
+    { "path": "/sensors", "title": "Live Sensor Monitoring" },
+    { "path": "/camera", "title": "Crop Camera" },
+    { "path": "/decisions", "title": "Decision Center" },
+    { "path": "/experience", "title": "Experience Memory" },
+    { "path": "/learning", "title": "Self-Learning" },
+    { "path": "/history", "title": "History & Trends" },
+    { "path": "/hardware", "title": "Hardware" },
+    { "path": "/settings", "title": "Settings" }
+  ]
+}

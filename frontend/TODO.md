@@ -1,0 +1,58 @@
+# AgriSight delivery outcomes
+
+## Dashboard and shared application shell
+- [x] Build a clean, modern, professional, highly readable web frontend for AgriSight that feels like a commercial agricultural intelligence platform, not a student IoT dashboard. Prioritize clarity, whitespace, visual hierarchy, readability and meaningful visualization; avoid dense IoT dashboards, excessive green, dark hacker-style interfaces, tiny text, too many charts, heavy borders, excessive gradients and generic admin-dashboard appearance.
+- [x] Use a bright, light, calm and spacious theme with warm neutral background (#F7F9F5 / #FAFBF8), deep natural green (#176B4D / #1F7A55) for primary actions/important indicators/active navigation, soft green (#DDF3E5 / #E8F6EC), charcoal and muted gray-green text, soft-green healthy, warm-amber warning, soft-red critical and soft-blue information states. Colors communicate meaning and are paired with text, never color alone.
+- [x] Use a modern readable sans-serif, large values, strong headings, medium-weight labels, comfortable line spacing and contrast. Provide generous spacing. Use a light desktop sidebar with subtle leaf-inspired AgriSight identity and line icons; navigation groups Overview—Dashboard; Monitor—Live Sensors, Camera; Intelligence—Decision Center, Experience Memory, Learning; Analytics—History & Trends; System—Hardware, Settings. Make active navigation obvious.
+- [x] The clean header shows “Good evening, Farmer”, “Farm Overview”, “System Online”, “Last updated: Just now”, notifications and user/profile. The information order on every page is current condition/recommendation, supporting environmental data, historical trends/intelligence, then technical detail.
+- [x] Dashboard answers how the farm is doing, what is happening, whether anything is wrong, what AgriSight recommends and how confident it is. Its prominent Farm Health card shows 82 / 100, Healthy, “Current environmental conditions are generally supportive.” and subtle supporting indicators for environmental stability, crop condition and water availability, with a subtle circle/semicircle visualization, not a speedometer.
+- [x] Dashboard’s prominent AgriSight Recommendation card says “Irrigation Recommended” and “Current soil moisture is low and water availability is sufficient.” It shows Confidence 91%, High confidence, “AgriSight is highly confident in this recommendation.”, primary “View Decision” and optional “Why?” which reveals simple reasons: Soil condition Dry; Rain condition None; Water availability Sufficient; Sensor reliability 94%; Historical similarity High. Do not put technical formulas on the dashboard.
+- [x] Dashboard shows no more than about 5–6 important environmental measurements: Temperature 31.4°C Normal; Humidity 67% Normal; Soil Moisture 38% Dry; Water 1700 L Sufficient; Light 420 lux Moderate; and the dynamic Rain/Weather card. Each sensor card uses a large value, small unit, clear text status, simple icon and optional tiny trend, without multiple graphs/metrics inside it.
+- [x] Use a focused, farmer-friendly premium agritech visual system and component-based layout. A farmer can understand the current situation and next action within a few seconds. Progressive disclosure supports Why? → Experience → Learning → Analytics → Sensor Details.
+
+## Dynamic weather / rain states
+- [x] Rain is a visually distinct, dynamic weather card, not just “Rain: 0 mm”. Support SUNNY, CLOUDY, RAIN, HEAVY_RAIN and NO_DATA with smooth, graceful state changes.
+- [x] SUNNY shows a subtle animated sun, “Sunny”, “No rain expected”, a very subtle warm-sky background and slow soft glow, not cartoonish. CLOUDY shows “Cloudy”, “No rain currently”, soft cool/light background and very slow-moving clouds. RAIN shows “Rain”, “Rain detected”, light blue/blue-gray tint and elegant restrained falling droplets. HEAVY_RAIN shows “Heavy Rain”, “Rain intensity: High”, slightly stronger but restrained rainfall and “Irrigation automatically paused” only when a backend decision indicates it. NO_DATA is a polished state.
+- [x] Weather appearance transitions smoothly (for example Sunny → Rain) and communicates its relationship to the agricultural decision system without distracting animation.
+
+## Live sensor monitoring and reliability
+- [x] Provide a dedicated “Live Sensor Monitoring” page with “All systems operational” and sensor views for soil moisture, temperature, humidity, rain, water level and light. Each shows current value, status, reliability, last updated and a small trend graph. Example soil reading: 38%, Dry, reliability 94%, Stable, with a small 24-hour graph. Selecting a sensor opens a detailed view.
+- [x] Explain that the sensor reliability engine considers stability, range validity, missing data and sudden changes. A clear indicator such as “Soil Sensor Reliability 94% — Stable” uses a clean horizontal confidence bar or circular indicator and plainly conveys “This sensor is currently trustworthy,” without mathematical overload.
+- [x] Provide deliberate “Waiting for sensor data…”, “Connection lost. Reconnecting…” and “Sensor reading may be unreliable.” states. Do not claim real connection without backend data.
+
+## Crop camera and observation
+- [x] Dashboard includes a compact Crop Camera card with camera preview/latest image, “Last captured: 2 min ago”, primary “Capture Image” and secondary “Open Camera”; the visual is an agricultural monitoring tool, not a generic webcam.
+- [x] A dedicated Camera page has a large preview area, Capture / “Capture Image” button and a clean recent-observations gallery. Each image can show timestamp, crop area and observation status.
+- [x] Reserve a clean Vision Analysis panel that can show Crop Condition and Confidence only when actual backend computer-vision results are supplied. Do not invent computer-vision metrics. Include “Camera is currently offline.” as an intentional, professional state. Sample/mock imagery is explicitly identified as illustrative, not a real camera capture.
+
+## Decision Center and intelligence
+- [x] A dedicated Decision Center presents a clean connected flow: Sensor Data → Sensor Reliability → Environmental State → Experience Memory → CRI → ACI → Decision. It displays the example Sensor Reliability 94%; Soil Dry, Rain None, Water Sufficient; 8 similar situations found; CRI 76 / 100; ACI 91%; final 💧 Irrigation Recommended. Explain each stage in simple language; make this useful for technical demonstrations without overwhelming farmers.
+- [x] Technical concepts are naturally exposed rather than dumped: Sensor Reliability Engine, Environmental State Engine, Experience Memory Engine, Similarity-based Experience Retrieval, Self-Learning Recalibration, Crop Resilience Index (CRI), Adaptive Confidence Index (ACI) and Safety-Constrained Decision Engine.
+- [x] The app is transparent that initially supplied sample values are not live sensor/backend readings. Do not fabricate backend capabilities, camera connectivity or decisions.
+
+## Experience Memory and adaptive learning
+- [x] Experience Memory is titled “Experience Memory” with subtitle “Learn from what happened before.” Current Situation shows Soil 36%, Temperature 31°C, Humidity 65%, Rain None. Similar Experiences shows “8 similar situations found” and a timeline with the example June 14: soil 35%, action Irrigation, outcome 35% → 62%, Successful, Similarity 92%. The presentation communicates learning from past interventions.
+- [x] When no similar history exists, show “AgriSight hasn’t encountered a similar situation yet.” as a polished empty state.
+- [x] Dedicated Self-Learning page shows Prediction—expected soil response 30% → 60%; Actual Outcome 30% → 48%; Prediction Error -12%; and “AgriSight updated its expected response for similar conditions.” The visual sequence is Prediction → Actual → Error → Updated expectation and makes adaptive learning transparent rather than a black box.
+
+## Analytics and intervention history
+- [x] Keep analytics simple, not 15 charts. Provide tabs Overview | Soil | Weather | Water | Interventions and time ranges 24 Hours | 7 Days | 30 Days.
+- [x] Use clean line charts with minimal gridlines for soil moisture trend, temperature trend, humidity trend, water usage and irrigation events.
+- [x] Present important intervention history in a readable, non-dense timeline/table with Date, Action, Before, After, Result and examples: Oct 7 | Irrigation | 35% | 61% | Successful; Oct 6 | Irrigation | 37% | 58% | Successful; Oct 5 | No action | 39% | 34% | Declined.
+
+## Hardware and safe controls
+- [x] Hardware page shows ESP32 Connected, last communication 2 seconds ago, uptime 4h 32m; connected/healthy Soil Sensor, DHT Sensor, Rain Sensor, Water Level Sensor and Light Sensor; and Actuator—Pump—Ready. Sample states are explicitly marked as demo data.
+- [x] Clearly separate any hardware test/control area only if supported by a backend. Dangerous actions such as activating a pump require confirmation. With no connected backend, do not expose an operable pump control or claim control support.
+
+## Responsive behavior, accessibility, interactions and states
+- [x] The interface works beautifully on desktop, laptop and tablet, especially field-use tablet, with natural card reflow and no horizontal scrolling.
+- [x] Prioritize large readable text, strong contrast, explicit status labels paired with icons, accessible controls, comfortable spacing, clear buttons and obvious active navigation. Never rely on color alone; e.g. label Moderate or Healthy in text.
+- [x] Use subtle, purposeful animation for page transitions, gentle card entrance, sensor number updates, online-status pulse, rain droplets, slow sun glow, gentle cloud movement, smooth chart updates, progress fills and restrained recommendation emphasis. Avoid excessive bouncing, spinning, constant movement, flashy gradients, distracting effects and gaming-style motion; respect reduced-motion preferences.
+- [x] Provide polished states for no sensor data (“Waiting for sensor data…”), camera unavailable (“Camera is currently offline.”), backend disconnected (“Connection lost. Reconnecting…”), unreliable sensor (“Sensor reading may be unreliable.”) and no historical experience (“AgriSight hasn’t encountered a similar situation yet.”).
+- [x] Translate technical intelligence into simple language: show “Confidence: 91%” and “AgriSight is highly confident in this recommendation.”, not “Weighted normalized confidence vector = 0.91”; expose technical details progressively via “Why?” or “View Details”.
+
+## Frontend architecture and integration boundary
+- [x] Build a real, working, component-based frontend suitable for later connection to a FastAPI backend. Use mock data initially if backend endpoints are unavailable, structured so real API data can replace the mock data, and do not fabricate backend capabilities.
+- [x] Reuse components such as Sidebar, Header, SensorCard, WeatherCard, RecommendationCard, ConfidenceIndicator, ReliabilityIndicator, TrendChart, CameraCard, DecisionFlow, ExperienceCard, StatusBadge, LoadingState and EmptyState.
+- [x] Keep sensor data, visual components and pages in a clear project structure. Browser-local camera capture, if enabled, is not persisted or uploaded without an actual backend. Site routes remain aligned with the route manifest.
+- [x] Preserve the most important experience: “My farm is currently healthy”; temperature normal; soil getting dry; no rain detected/expected; water sufficient; AgriSight recommends irrigation; confidence is 91%. Keep the surface simple and intelligence underneath, and omit metrics/cards/charts that do not help a farmer understand conditions or make a better decision.
