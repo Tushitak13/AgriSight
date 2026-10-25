@@ -90,3 +90,66 @@ def test_history_and_404(client):
         client.post("/api/vision/analyze", files={"file": (f"{n}.jpg", jpg_bytes(n), "image/jpeg")})
     h = client.get("/api/vision/history").json()
     assert len(h) == 2 and h[0]["visual_state"] != h[1]["visual_state"]
+
+
+from app.services.vision import vision_service
+
+
+class FakeStatusModel:
+    name = "test_status_model"
+
+    def __init__(self, result):
+        self.result = result
+
+    def predict(self, img):
+        return self.result
+
+
+def test_uncertain_prediction_is_not_trusted(client, monkeypatch):
+    monkeypatch.setattr(
+        vision_service,
+        "_model",
+        FakeStatusModel({
+            "status": "uncertain",
+            "visual_state": "unknown",
+            "prediction": "unknown",
+            "confidence": 0.85,
+        }),
+    )
+
+    response = client.post(
+        "/api/vision/analyze",
+        files={"file": ("uncertain.jpg", jpg_bytes("healthy"), "image/jpeg")},
+    )
+
+    assert response.status_code == 201
+    data = response.json()
+    assert data["prediction"] == "unknown"
+    assert data["trusted"] is False
+    assert data["effective_confidence"] is None
+
+
+def test_model_error_is_not_trusted(client, monkeypatch):
+    monkeypatch.setattr(
+        vision_service,
+        "_model",
+        FakeStatusModel({
+            "status": "error",
+            "visual_state": "unknown",
+            "prediction": "unknown",
+            "confidence": 0.95,
+        }),
+    )
+
+    response = client.post(
+        "/api/vision/analyze",
+        files={"file": ("error.jpg", jpg_bytes("healthy"), "image/jpeg")},
+    )
+
+    assert response.status_code == 201
+    data = response.json()
+    assert data["visual_state"] == "inference_error"
+    assert data["prediction"] == "unknown"
+    assert data["model_confidence"] is None
+    assert data["trusted"] is False
+    assert data["effective_confidence"] is None

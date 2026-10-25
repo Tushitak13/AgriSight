@@ -6,6 +6,7 @@ The classifier is replaceable through the VisionModel interface and set_model().
 
 import io
 import logging
+import os
 import uuid
 from typing import Protocol
 
@@ -84,9 +85,23 @@ class HeuristicVegetationModel:
         }
 
 
-# Use the trained classifier by default.
-# The model is loaded lazily by TomatoDiseaseModel when first needed.
-_model: VisionModel = HeuristicVegetationModel()
+def _configured_model() -> VisionModel:
+    """Choose the vision model through AGRISIGHT_VISION_MODEL."""
+    choice = os.getenv("AGRISIGHT_VISION_MODEL", "heuristic").strip().lower()
+
+    if choice == "heuristic":
+        return HeuristicVegetationModel()
+
+    if choice == "tomato_disease":
+        return TomatoDiseaseModel()
+
+    raise ValueError(
+        "AGRISIGHT_VISION_MODEL must be 'heuristic' or 'tomato_disease'"
+    )
+
+
+# Preserve existing behavior unless the classifier is explicitly selected.
+_model: VisionModel = _configured_model()
 
 
 def get_model() -> VisionModel:
@@ -138,6 +153,12 @@ def analyze_upload(
     if not isinstance(pred, dict):
         raise VisionError("vision model returned an invalid result")
 
+    # Legacy models do not provide status, so treat their result as successful
+    # to preserve existing behavior.
+    status = pred.get("status", "success")
+    if status not in {"success", "uncertain", "error"}:
+        raise VisionError("vision model returned an invalid status")
+
     visual_state = pred.get("visual_state", "unknown")
     prediction = pred.get("prediction", "unknown")
     confidence = pred.get("confidence")
@@ -155,8 +176,22 @@ def analyze_upload(
                 "vision model confidence must be between 0 and 1"
             )
 
-    # Preserve the existing reliability computation.
+    # An unsuccessful inference must never contribute model confidence.
+    if status == "error":
+        confidence = None
+        visual_state = "inference_error"
+        prediction = "unknown"
+
+    # Preserve the existing image-quality reliability computation.
     rel = compute_vision_reliability(quality, confidence)
+
+    # Image quality alone cannot make an uncertain/error prediction trusted.
+    trusted = rel["trusted"] and status == "success"
+    effective_confidence = (
+        rel["effective_confidence"]
+        if status == "success"
+        else None
+    )
 
     config.VISION_UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
     path = config.VISION_UPLOAD_DIR / f"{uuid.uuid4().hex}.{ext}"
@@ -173,8 +208,8 @@ def analyze_upload(
         prediction=prediction,
         model_confidence=confidence,
         vision_reliability=rel["vision_reliability"],
-        effective_confidence=rel["effective_confidence"],
-        trusted=rel["trusted"],
+        effective_confidence=effective_confidence,
+        trusted=trusted,
     )
 
     db.add(row)
