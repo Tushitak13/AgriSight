@@ -1,9 +1,10 @@
 
-"""MobileNetV2 tomato disease classifier adapter for AgriSight."""
+"""MobileNetV2 plant disease classifier adapter for AgriSight."""
 
 from __future__ import annotations
 
 import logging
+import os
 import time
 from functools import lru_cache
 
@@ -16,20 +17,36 @@ logger = logging.getLogger(__name__)
 MODEL_ID = "neghani/plantvillage-mobilenetv2"
 MODEL_REVISION = "v1.0"
 
-# Provisional smoke-test threshold only; validate before production.
-MIN_CONFIDENCE = 0.60
+
+def _read_confidence_threshold() -> float:
+    """Read a provisional threshold, validating that it is between 0 and 1."""
+    raw = os.getenv("AGRISIGHT_TOMATO_MIN_CONFIDENCE", "0.60")
+    try:
+        value = float(raw)
+    except ValueError as exc:
+        raise ValueError(
+            "AGRISIGHT_TOMATO_MIN_CONFIDENCE must be a number between 0 and 1"
+        ) from exc
+
+    if not 0.0 <= value <= 1.0:
+        raise ValueError(
+            "AGRISIGHT_TOMATO_MIN_CONFIDENCE must be between 0 and 1"
+        )
+    return value
+
+
+# Provisional only; validate on an independent dataset before production.
+MIN_CONFIDENCE = _read_confidence_threshold()
 
 
 @lru_cache(maxsize=1)
 def _load_model():
-    """Load the model once per process and reuse it for subsequent images."""
+    """Load the model once per process."""
     processor = AutoImageProcessor.from_pretrained(
-        MODEL_ID,
-        revision=MODEL_REVISION,
+        MODEL_ID, revision=MODEL_REVISION
     )
     model = AutoModelForImageClassification.from_pretrained(
-        MODEL_ID,
-        revision=MODEL_REVISION,
+        MODEL_ID, revision=MODEL_REVISION
     )
     model.to("cpu")
     model.eval()
@@ -37,60 +54,71 @@ def _load_model():
 
 
 class TomatoDiseaseModel:
-    """Implements the existing AgriSight VisionModel.predict interface."""
+    """Implements AgriSight's VisionModel.predict interface."""
 
     name = f"mobilenetv2_plantvillage_{MODEL_REVISION}"
 
     def predict(self, img: Image.Image) -> dict:
         start = time.perf_counter()
+        model_version = f"{MODEL_ID}@{MODEL_REVISION}"
 
         try:
             processor, model = _load_model()
-            rgb_image = img.convert("RGB")
-            inputs = processor(images=rgb_image, return_tensors="pt")
+            inputs = processor(images=img.convert("RGB"), return_tensors="pt")
 
             with torch.inference_mode():
                 logits = model(**inputs).logits
-                probabilities = torch.softmax(logits, dim=-1)[0]
+                scores = torch.softmax(logits, dim=-1)[0]
 
             labels = model.config.id2label
-            best_id = int(torch.argmax(probabilities).item())
-            best_label = labels[best_id]
-            confidence = float(probabilities[best_id].item())
-
-            tomato_scores = [
-                (labels[i], float(probabilities[i].item()))
+            probabilities = {
+                labels[i]: float(scores[i].item())
                 for i in range(len(labels))
-                if labels[i].startswith("Tomato___")
-            ]
-            best_tomato = max(
-                tomato_scores,
-                key=lambda item: item[1],
-                default=(None, 0.0),
+            }
+
+            best_id = int(torch.argmax(scores).item())
+            best_label = labels[best_id]
+            confidence = probabilities[best_label]
+
+            tomato_scores = {
+                label: score
+                for label, score in probabilities.items()
+                if label.startswith("Tomato___")
+            }
+            best_tomato_class = (
+                max(tomato_scores, key=tomato_scores.get)
+                if tomato_scores else None
+            )
+            best_tomato_score = (
+                tomato_scores[best_tomato_class]
+                if best_tomato_class is not None else None
             )
 
-            top_predictions = sorted(
-                [
-                    {
-                        "class": labels[i],
-                        "score": float(probabilities[i].item()),
-                    }
-                    for i in range(len(labels))
-                ],
-                key=lambda item: item["score"],
-                reverse=True,
-            )[:5]
+            top_predictions = [
+                {"class": label, "score": score}
+                for label, score in sorted(
+                    probabilities.items(),
+                    key=lambda item: item[1],
+                    reverse=True,
+                )[:5]
+            ]
 
             if not best_label.startswith("Tomato___"):
                 status = "uncertain"
+                reason = "non_tomato_top_prediction"
+                predicted_class = None
                 visual_state = "uncertain_crop"
                 prediction = "unknown"
             elif confidence < MIN_CONFIDENCE:
                 status = "uncertain"
+                reason = "low_confidence"
+                predicted_class = None
                 visual_state = "uncertain_disease"
                 prediction = "unknown"
             else:
-                status = "model_prediction"
+                status = "success"
+                reason = None
+                predicted_class = best_label
                 visual_state = (
                     "healthy_appearance"
                     if best_label == "Tomato___healthy"
@@ -99,23 +127,26 @@ class TomatoDiseaseModel:
                 prediction = best_label.removeprefix("Tomato___")
 
             return {
+                # Existing adapter fields retained for compatibility.
                 "visual_state": visual_state,
                 "prediction": prediction,
                 "confidence": confidence,
-                "predicted_class": best_label,
-                "best_tomato_class": best_tomato[0],
-                "best_tomato_score": best_tomato[1],
+                "predicted_class": predicted_class,
+                "best_tomato_class": best_tomato_class,
+                "best_tomato_score": best_tomato_score,
                 "top_predictions": top_predictions,
                 "status": status,
-                "model_version": f"{MODEL_ID}@{MODEL_REVISION}",
+                "model_version": model_version,
                 "inference_time_ms": round(
                     (time.perf_counter() - start) * 1000, 2
                 ),
+                # New contract fields.
+                "probabilities": probabilities,
+                "reason": reason,
             }
 
         except Exception:
             logger.exception("Tomato disease inference failed")
-            # Preserve the service contract instead of inventing a prediction.
             return {
                 "visual_state": "inference_error",
                 "prediction": "unknown",
@@ -125,8 +156,10 @@ class TomatoDiseaseModel:
                 "best_tomato_score": None,
                 "top_predictions": [],
                 "status": "error",
-                "model_version": f"{MODEL_ID}@{MODEL_REVISION}",
+                "model_version": model_version,
                 "inference_time_ms": round(
                     (time.perf_counter() - start) * 1000, 2
                 ),
+                "probabilities": {},
+                "reason": "model_error",
             }
