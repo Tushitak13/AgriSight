@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 640" role="img" aria-label="Illustrative view across green crop rows at a sunny farm">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0.12" y2="1"><stop stop-color="#dcece0"/><stop offset="1" stop-color="#f2f0d9"/></linearGradient>
+    <linearGradient id="field" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#8eb777"/><stop offset="1" stop-color="#375f43"/></linearGradient>
+    <linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#b8d58e"/><stop offset="1" stop-color="#4c8352"/></linearGradient>
+    <linearGradient id="furrow" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#d9c990" stop-opacity=".55"/><stop offset="1" stop-color="#b3a16f" stop-opacity=".04"/></linearGradient>
+  </defs>
+  <rect width="1200" height="640" fill="url(#sky)"/>
+  <circle cx="935" cy="128" r="58" fill="#f7dd96" opacity=".85"/>
+  <g fill="#fff" opacity=".54"><path d="M151 144c6-31 46-42 68-19 12-32 59-26 62 10 29-3 41 35 16 50H166c-23-6-28-29-15-41Z"/><path d="M685 100c5-20 32-28 46-12 8-21 39-17 41 7 19-2 27 23 10 33H694c-15-4-19-19-9-28Z"/></g>
+  <path d="M0 341c146-35 227-37 354-4 110 29 198-8 311-15 189-12 312 46 535 4v101H0Z" fill="#a4c28f"/>
+  <path d="M0 372c143-26 246-37 368-7 135 33 206-26 331-17 183 13 310 50 501 21v271H0Z" fill="url(#field)"/>
+  <path d="M0 418c220-45 346-42 547 4 160 36 352-16 653-12v230H0Z" fill="#789d61"/>
+  <path d="M0 470c204-44 357-25 560 18 198 42 390-17 640-7v159H0Z" fill="#557c50"/>
+  <g fill="none" stroke="url(#furrow)" stroke-width="11" opacity=".75">
+    <path d="M-80 640 350 379"/><path d="M75 660 435 376"/><path d="M250 660 526 380"/><path d="M455 660 630 382"/><path d="M690 660 737 388"/><path d="M930 660 850 390"/><path d="M1160 660 964 389"/><path d="M1370 660 1060 384"/>
+  </g>
+  <g fill="url(#leaf)" stroke="#426f49" stroke-width="3" stroke-linejoin="round">
+    <path d="M603 648c-26-133-96-204-189-245 42 103 105 177 189 245Z"/><path d="M600 649c-7-159 19-247 92-334 4 126-23 238-92 334Z"/><path d="M604 645c47-147 112-211 226-250-52 106-127 191-226 250Z"/><path d="M608 648c101-91 183-119 289-116-94 68-186 108-289 116Z"/><path d="M596 644c-100-91-180-118-280-109 91 62 180 99 280 109Z"/>
+  </g>
+  <g fill="none" stroke="#e1e9c7" stroke-width="3" stroke-linecap="round" opacity=".75"><path d="M601 648 449 424"/><path d="M603 648 688 350"/><path d="M604 646 799 413"/><path d="M599 644 374 534"/></g>
+  <path d="M0 0h1200v640H0z" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="3"/>
+</svg>
