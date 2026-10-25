@@ -12,6 +12,7 @@ from app.api import (
     cri_routes,
     rola_routes,
     flai_routes,
+    tomato_risk_routes,
 )
 
 
@@ -36,6 +37,7 @@ app.include_router(aci_routes.router)
 app.include_router(cri_routes.router)
 app.include_router(rola_routes.router)
 app.include_router(flai_routes.router)
+app.include_router(tomato_risk_routes.router)
 
 
 @app.get("/health")
