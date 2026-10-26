@@ -11,20 +11,39 @@
 ## 1. Objective
 
 Evaluate the tomato disease classifier on PlantVillage images and investigate its behavior on an independent field-image dataset.
-
 ## 2. PlantVillage Evaluation
 
 Dataset: `D:\Archive\plantvillage dataset\color`
 
-The script sampled up to 20 images from each of 10 tomato classes, using random seed `42`.
+Model: `neghani/plantvillage-mobilenetv2`, pinned revision `v1.0`.
+
+### Initial exploratory result — not an independent test
+
+The initial evaluation sampled up to 20 images from each of 10 tomato classes, using random seed `42`.
 
 | Metric | Result |
 |---|---:|
 | Images evaluated | 200 |
-| Reported top-1 accuracy | 100% |
+| Initially reported top-1 accuracy | 100% |
 | Non-tomato top predictions | 0 |
+| Sampled images overlapping the recorded training split | 157 |
 
-These results apply to the sampled PlantVillage images. They do not establish real-world field accuracy.
+The initial 100% result is contaminated by training-image overlap and must not be presented as independent held-out accuracy.
+
+### Recorded PlantVillage tomato test split
+
+A corrected evaluation used the tomato-class images listed in the model revision's recorded test split.
+
+| Metric | Result |
+|---|---:|
+| Test images listed in the manifest | 1,816 |
+| Successful inferences | 1,816 |
+| Inference errors | 0 |
+| Correct top-1 predictions | 1,792 |
+| Top-1 accuracy | 98.68% |
+| Non-tomato top predictions | 3 |
+
+The result is \(1792 / 1816 = 98.68\%\). It should be described as accuracy on the model's recorded PlantVillage tomato test split, not as accuracy on real-world farm images. The split manifest was used to select test images, but the model's training process has not been independently audited to rule out all possible leakage.
 
 ## 3. Field Dataset Exploratory Evaluation
 
