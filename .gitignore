@@ -28,3 +28,7 @@ htmlcov/
 
 # Raw images - exclude until reviewed
 /data/raw/
+
+# Local datasets and generated evaluation images
+/external_datasets/
+/model_evaluation/*contact_sheet.jpg

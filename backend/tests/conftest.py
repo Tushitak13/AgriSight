@@ -55,3 +55,16 @@ def _tmp_upload_dir(tmp_path, monkeypatch):
     from app import config
 
     monkeypatch.setattr(config, "VISION_UPLOAD_DIR", tmp_path / "uploads")
+
+
+
+@pytest.fixture(autouse=True)
+def _use_test_vision_model(monkeypatch):
+    """Keep vision tests deterministic; production still uses the real models."""
+    from app.services.vision import vision_service
+
+    monkeypatch.setattr(
+        vision_service,
+        "_model",
+        vision_service.HeuristicVegetationModel(),
+    )

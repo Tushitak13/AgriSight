@@ -1,4 +1,4 @@
-from datetime import datetime
+﻿from datetime import datetime
 from pydantic import BaseModel, ConfigDict
 
 
@@ -18,6 +18,7 @@ class VisionObservationOut(BaseModel):
     vision_reliability: float
     effective_confidence: float | None
     trusted: bool
+    detections: list[dict] | None = None
 
 
 class TriggerDecision(BaseModel):
@@ -25,4 +26,4 @@ class TriggerDecision(BaseModel):
     reasons: list[str]
     overall_sensor_reliability: float | None
     anomalous_sensors: list[str]
-    aci: float | None = None            # ACI (without camera evidence) used for the decision
+    aci: float | None = None

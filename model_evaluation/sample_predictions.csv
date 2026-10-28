@@ -1,0 +1,5 @@
+﻿true_label,predicted_label
+healthy,healthy
+healthy,early_blight
+early_blight,early_blight
+early_blight,early_blight

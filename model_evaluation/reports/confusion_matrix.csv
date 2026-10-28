@@ -1,0 +1,6 @@
+actual/predicted,Bacterial Spot,Black Spot,Early Blight,Late Blight,Leaf Mold
+Bacterial Spot,0,7,0,0,2
+Black Spot,0,0,0,0,0
+Early Blight,0,5,0,0,4
+Late Blight,0,5,0,2,3
+Leaf Mold,0,3,0,1,2

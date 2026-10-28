@@ -1,0 +1,35 @@
+image,true_label,predicted_label,visual_state,confidence,yolo_label,yolo_confidence,mobilenet_label,models_agree
+external_datasets\PlantDoc\test\Tomato Early blight leaf\039b47d574bc4bb8a14259a1cd96a741.jpg,Early Blight,Leaf Mold,model_disagreement_review,0.5796,Late Blight,0.8316,Leaf Mold,False
+external_datasets\PlantDoc\test\Tomato Early blight leaf\100983448.jpg,Early Blight,Leaf Mold,models_agree,0.5514,Leaf Mold,0.8354,Leaf Mold,True
+external_datasets\PlantDoc\test\Tomato Early blight leaf\1234080-Early-Blight.jpg,Early Blight,Black Spot,model_disagreement_review,0.3741,Leaf Mold,0.3899,Black Spot,False
+external_datasets\PlantDoc\test\Tomato Early blight leaf\bugs-and-blight-061.jpg,Early Blight,Black Spot,model_disagreement_review,0.4483,Late Blight,0.3465,Black Spot,False
+external_datasets\PlantDoc\test\Tomato Early blight leaf\dscn3175.jpg,Early Blight,Black Spot,low_confidence_review,0.4076,Black Spot,0.4878,Black Spot,True
+external_datasets\PlantDoc\test\Tomato Early blight leaf\early_blight1-150x150.jpg,Early Blight,Leaf Mold,low_confidence_review,0.3955244719982147,,,,
+external_datasets\PlantDoc\test\Tomato Early blight leaf\earlyblight21_.jpg,Early Blight,Leaf Mold,no_yolo_detection_mobilenet_fallback,0.6509720683097839,,,,
+external_datasets\PlantDoc\test\Tomato Early blight leaf\Shoemaker_7068.JPG.jpg,Early Blight,Black Spot,model_disagreement_review,0.4503,Healthy,0.5797,Black Spot,False
+external_datasets\PlantDoc\test\Tomato Early blight leaf\tomato_early-blight_01_zoom.jpg,Early Blight,Black Spot,low_confidence_review,0.4063,Black Spot,0.381,Black Spot,True
+external_datasets\PlantDoc\test\Tomato leaf bacterial spot\%2320+Bacterial+Spot+and+Speck.jpg,Bacterial Spot,Black Spot,models_agree,0.7451,Black Spot,0.6196,Black Spot,True
+external_datasets\PlantDoc\test\Tomato leaf bacterial spot\07.17.18-Common_Tomato_Diseases_Canker-258x300.jpg,Bacterial Spot,Leaf Mold,no_yolo_detection_mobilenet_fallback,0.5124847888946533,,,,
+external_datasets\PlantDoc\test\Tomato leaf bacterial spot\bact-spot-fig-1.jpg,Bacterial Spot,Black Spot,model_disagreement_review,0.4204,Healthy,0.5309,Black Spot,False
+external_datasets\PlantDoc\test\Tomato leaf bacterial spot\Bacterial_spots563.jpg,Bacterial Spot,Black Spot,low_confidence_review,0.4576,Black Spot,0.6441,Black Spot,True
+external_datasets\PlantDoc\test\Tomato leaf bacterial spot\Tom_Bact3.jpg,Bacterial Spot,Black Spot,model_disagreement_review,0.6041,Late Blight,0.7416,Black Spot,False
+external_datasets\PlantDoc\test\Tomato leaf bacterial spot\Tom_Bact7.jpg,Bacterial Spot,Black Spot,no_yolo_detection_mobilenet_fallback,0.6617256999015808,,,,
+external_datasets\PlantDoc\test\Tomato leaf bacterial spot\Tomato%2BBacterial%2BSpot%2Bon%2BLeaves.jpg,Bacterial Spot,Leaf Mold,models_agree,0.5348,Leaf Mold,0.8079,Leaf Mold,True
+external_datasets\PlantDoc\test\Tomato leaf bacterial spot\tomato_bacterial-speck_01_zoom.jpg,Bacterial Spot,Black Spot,model_disagreement_review,0.493,Leaf Mold,0.543,Black Spot,False
+external_datasets\PlantDoc\test\Tomato leaf bacterial spot\tomato_V8.jpg,Bacterial Spot,Black Spot,low_confidence_review,0.3602699339389801,,,,
+external_datasets\PlantDoc\test\Tomato leaf late blight\110822-206-Tomato-blight.jpg,Late Blight,Black Spot,model_disagreement_review,0.4813,Late Blight,0.7625,Black Spot,False
+external_datasets\PlantDoc\test\Tomato leaf late blight\18c.jpg,Late Blight,Late Blight,model_disagreement_review,0.503,Leaf Mold,0.6539,Late Blight,False
+external_datasets\PlantDoc\test\Tomato leaf late blight\636368370164094909-late-blight-15-.jpg,Late Blight,Black Spot,low_confidence_review,0.27595558762550354,,,,
+external_datasets\PlantDoc\test\Tomato leaf late blight\70.jpg,Late Blight,Leaf Mold,low_confidence_review,0.2518486976623535,,,,
+external_datasets\PlantDoc\test\Tomato leaf late blight\dsc_8148cs.jpg,Late Blight,Leaf Mold,model_disagreement_review,0.7265,Late Blight,0.7725,Leaf Mold,False
+external_datasets\PlantDoc\test\Tomato leaf late blight\E%29Tomato-late-blight-foliar.jpg,Late Blight,Black Spot,low_confidence_review,0.3213927149772644,,,,
+external_datasets\PlantDoc\test\Tomato leaf late blight\image.jpg,Late Blight,Late Blight,low_confidence_review,0.4181,Late Blight,0.6417,Late Blight,True
+external_datasets\PlantDoc\test\Tomato leaf late blight\IMG_5808.jpg,Late Blight,Leaf Mold,low_confidence_review,0.46798303723335266,,,,
+external_datasets\PlantDoc\test\Tomato leaf late blight\late_blight_tomato_leaf_spore1x1200.jpg,Late Blight,Black Spot,model_disagreement_review,0.4214,Late Blight,0.3484,Black Spot,False
+external_datasets\PlantDoc\test\Tomato leaf late blight\LateBlt09_06.jpg,Late Blight,Black Spot,model_disagreement_review,0.5183,Late Blight,0.6846,Black Spot,False
+external_datasets\PlantDoc\test\Tomato mold leaf\49%20Leafmold%20Bottom.jpg,Leaf Mold,Late Blight,low_confidence_review,0.4176,Late Blight,0.5124,Late Blight,True
+external_datasets\PlantDoc\test\Tomato mold leaf\50%20Leafmold%20Top.jpg,Leaf Mold,Black Spot,low_confidence_review,0.4064292311668396,,,,
+external_datasets\PlantDoc\test\Tomato mold leaf\BIGSD.jpg,Leaf Mold,Black Spot,models_agree,0.6163,Black Spot,0.4919,Black Spot,True
+external_datasets\PlantDoc\test\Tomato mold leaf\black_leaf_mold_in_zina_tina.jpg,Leaf Mold,Leaf Mold,low_confidence_review,0.3175491988658905,,,,
+external_datasets\PlantDoc\test\Tomato mold leaf\dscn6689.jpg,Leaf Mold,Black Spot,low_confidence_review,0.29485681653022766,,,,
+external_datasets\PlantDoc\test\Tomato mold leaf\fungus-univ-of-minnesoeta.jpg,Leaf Mold,Leaf Mold,model_disagreement_review,0.4314,Late Blight,0.3646,Leaf Mold,False
