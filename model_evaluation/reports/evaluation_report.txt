@@ -1,0 +1,14 @@
+AgriSight Tomato Disease Classifier Evaluation
+Samples evaluated: 4
+Accuracy: 0.7500
+Macro F1-score: 0.7333
+
+Per-class metrics:
+Class | Support | Precision | Recall | F1-score
+early_blight | 2 | 0.6667 | 1.0000 | 0.8000
+healthy | 2 | 1.0000 | 0.5000 | 0.6667
+
+Confusion matrix (rows = actual, columns = predicted):
+Actual/Predicted | early_blight | healthy
+early_blight | 2 | 0
+healthy | 1 | 1
