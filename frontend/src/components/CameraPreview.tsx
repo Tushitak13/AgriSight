@@ -1,90 +1,228 @@
-import { Camera, CameraOff, CircleCheck, Image as ImageIcon, RotateCcw } from 'lucide-react';
+
 import { useEffect, useRef, useState } from 'react';
-import { farmRepository } from '../data/farmRepository';
+import { Camera, CameraOff, CheckCircle2, RefreshCw } from 'lucide-react';
 
 export interface CameraCapture {
   url: string;
   capturedAt: string;
+  blob: Blob;
 }
 
-export default function CameraPreview({ onCapture }: { onCapture?: (capture: CameraCapture) => void }) {
-  const cropPreviewUrl = farmRepository.getCameraPreviewUrl();
+interface CameraPreviewProps {
+  onCapture?: (capture: CameraCapture) => void;
+}
+
+export default function CameraPreview({ onCapture }: CameraPreviewProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const capturedUrlRef = useRef<string | null>(null);
-  const [live, setLive] = useState(false);
+
+  const [cameraActive, setCameraActive] = useState(false);
+  const [starting, setStarting] = useState(false);
   const [capturedUrl, setCapturedUrl] = useState<string | null>(null);
+  const [capturedAt, setCapturedAt] = useState<string | null>(null);
   const [error, setError] = useState('');
-  const [capturedAt, setCapturedAt] = useState('');
-
-  useEffect(() => {
-    if (videoRef.current && streamRef.current) videoRef.current.srcObject = streamRef.current;
-  }, [live]);
-
-  useEffect(() => () => {
-    streamRef.current?.getTracks().forEach((track) => track.stop());
-    if (capturedUrlRef.current) URL.revokeObjectURL(capturedUrlRef.current);
-  }, []);
-
-  async function startCamera() {
-    setError('');
-    if (!navigator.mediaDevices?.getUserMedia) {
-      setError('Camera is currently offline. This browser does not support camera access.');
-      return;
-    }
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
-      streamRef.current = stream;
-      setLive(true);
-    } catch {
-      setError('Camera is currently offline. Allow camera access in your browser, then try again.');
-    }
-  }
 
   function stopCamera() {
     streamRef.current?.getTracks().forEach((track) => track.stop());
     streamRef.current = null;
-    setLive(false);
+
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+
+    setCameraActive(false);
+  }
+
+  async function startCamera() {
+    setError('');
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setError('Camera access is unavailable. Use HTTPS or localhost and a supported browser.');
+      return;
+    }
+
+    setStarting(true);
+
+    try {
+      stopCamera();
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' } },
+        audio: false,
+      });
+
+      streamRef.current = stream;
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
+      }
+
+      setCameraActive(true);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'Unknown camera error';
+
+      setError(
+        message.includes('NotAllowedError')
+          ? 'Camera permission was denied. Allow camera access in your browser settings.'
+          : message.includes('NotFoundError')
+            ? 'No camera was found on this device.'
+            : `Could not start the camera: ${message}`,
+      );
+    } finally {
+      setStarting(false);
+    }
   }
 
   function captureFrame() {
     const video = videoRef.current;
+
     if (!video || !video.videoWidth || !video.videoHeight) {
-      setError('The camera preview is still starting. Try capturing again in a moment.');
+      setError('The camera is not ready yet. Please wait and try again.');
       return;
     }
+
+    setError('');
+
     const canvas = document.createElement('canvas');
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-    canvas.getContext('2d')?.drawImage(video, 0, 0, canvas.width, canvas.height);
-    canvas.toBlob((blob) => {
-      if (!blob) return;
-      const url = URL.createObjectURL(blob);
-      if (capturedUrlRef.current) URL.revokeObjectURL(capturedUrlRef.current);
-      capturedUrlRef.current = url;
-      setCapturedUrl(url);
-      const time = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' }).format(new Date());
-      setCapturedAt(time);
-      onCapture?.({ url, capturedAt: time });
-      stopCamera();
-    }, 'image/jpeg', 0.9);
+
+    const context = canvas.getContext('2d');
+
+    if (!context) {
+      setError('Could not prepare the image for capture.');
+      return;
+    }
+
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    canvas.toBlob(
+      (blob) => {
+        if (!blob) {
+          setError('Could not capture the image. Please try again.');
+          return;
+        }
+
+        const url = URL.createObjectURL(blob);
+
+        if (capturedUrlRef.current) {
+          URL.revokeObjectURL(capturedUrlRef.current);
+        }
+
+        capturedUrlRef.current = url;
+        setCapturedUrl(url);
+
+        const time = new Intl.DateTimeFormat(undefined, {
+          hour: 'numeric',
+          minute: '2-digit',
+        }).format(new Date());
+
+        setCapturedAt(time);
+        onCapture?.({ url, capturedAt: time, blob });
+        stopCamera();
+      },
+      'image/jpeg',
+      0.9,
+    );
   }
 
+  useEffect(() => {
+    return () => {
+      streamRef.current?.getTracks().forEach((track) => track.stop());
+
+      if (capturedUrlRef.current) {
+        URL.revokeObjectURL(capturedUrlRef.current);
+      }
+    };
+  }, []);
+
   return (
-    <div className="camera-module">
-      <div className={`camera-stage ${live ? 'is-live' : ''}`}>
-        {live ? <video ref={videoRef} autoPlay playsInline muted aria-label="Live local camera preview" /> : <img src={capturedUrl ?? cropPreviewUrl} alt={capturedUrl ? 'Image captured from this device camera' : 'Illustrative sample image of green maize leaves in a crop field'} onError={(event) => { if (!capturedUrl && !event.currentTarget.src.endsWith('/crop-preview-fallback.svg')) event.currentTarget.src = '/crop-preview-fallback.svg'; }} />}
-        {!live && !capturedUrl && <span className="camera-image-tag"><ImageIcon size={13} /> Illustrative demo image</span>}
-        {live && <span className="camera-live-tag"><i /> Live camera · this device</span>}
-        {error && <div className="camera-error" role="status"><CameraOff size={18} /><span>{error}</span></div>}
+    <div className="camera-preview">
+      <div className="camera-preview-frame">
+        {cameraActive ? (
+          <video
+            ref={videoRef}
+            autoPlay
+            muted
+            playsInline
+            aria-label="Live camera preview"
+            className="camera-preview-video"
+          />
+        ) : capturedUrl ? (
+          <img
+            src={capturedUrl}
+            alt="Most recently captured plant image"
+            className="camera-preview-video"
+          />
+        ) : (
+          <div className="camera-preview-placeholder">
+            <Camera size={36} />
+            <strong>Ready to observe</strong>
+            <span>Start the camera to capture a plant image.</span>
+          </div>
+        )}
       </div>
-      <div className="camera-actions">
-        {live ? <button className="button button-primary" onClick={captureFrame}><Camera size={16} /> Capture Image</button> : <button className="button button-primary" onClick={startCamera}><Camera size={16} /> {capturedUrl ? 'Capture another' : 'Use device camera'}</button>}
-        {live && <button className="button button-soft" onClick={stopCamera}>Stop camera</button>}
-        {capturedUrl && !live && <span className="capture-confirmation"><CircleCheck size={16} /> Captured at {capturedAt} · session only</span>}
-        {error && <button className="button button-quiet" onClick={startCamera}><RotateCcw size={15} /> Try again</button>}
+
+      {error && (
+        <p className="camera-preview-error" role="alert">
+          {error}
+        </p>
+      )}
+
+      <div className="camera-preview-actions">
+        {!cameraActive ? (
+          <button
+            type="button"
+            className="button button-primary"
+            onClick={() => void startCamera()}
+            disabled={starting}
+          >
+            <Camera size={15} />
+            {starting ? 'Starting camera…' : 'Start camera'}
+          </button>
+        ) : (
+          <>
+            <button
+              type="button"
+              className="button button-primary"
+              onClick={captureFrame}
+            >
+              <CheckCircle2 size={15} />
+              Capture image
+            </button>
+
+            <button
+              type="button"
+              className="button button-soft"
+              onClick={stopCamera}
+            >
+              <CameraOff size={15} />
+              Stop camera
+            </button>
+          </>
+        )}
+
+        {capturedUrl && !cameraActive && (
+          <button
+            type="button"
+            className="button button-soft"
+            onClick={() => void startCamera()}
+            disabled={starting}
+          >
+            <RefreshCw size={15} />
+            Retake
+          </button>
+        )}
       </div>
-      <p className="camera-privacy">Camera access starts only when you choose it. Captures stay in this browser session and are not uploaded.</p>
+
+      <p className="camera-preview-note">
+        Camera access starts only when you choose it. Images are uploaded to
+        AgriSight only when you request analysis.
+        {capturedAt ? ` Last captured at ${capturedAt}.` : ''}
+      </p>
     </div>
   );
 }
